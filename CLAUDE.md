@@ -29,6 +29,17 @@ npm run format:check # Check formatting without modifying files
 - `app/page.tsx` - Home page
 - `app/globals.css` - Global styles with Tailwind and CSS custom properties
 
+### Components (`app/components/`)
+
+- `HomeportLogo.tsx` - Logo with SVG icon and branding text
+- `Button.tsx` - Reusable button with `filled`/`outlined` variants and `default`/`logged` states
+- `Header.tsx` - App header with logo and "Log Today" action button
+- `Modal.tsx` - Modal dialog with backdrop and escape key support
+- `Form.tsx` - Form container layout
+- `FormTitle.tsx` - Form header with icon, title, and close button
+- `FormField.tsx` - Form input supporting text, number, date, and checkbox types
+- `WeeklyHighlight.tsx` - Weekly progress tracker displaying metrics (LeetCode, DSA, Workout, Project hours)
+
 ### Path Aliases
 
 Use `@/*` to import from the project root (e.g., `import { Component } from '@/components/Component'`).
