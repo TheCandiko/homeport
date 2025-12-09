@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 import Header from '@/app/components/Header';
 import WeeklyHighlight from '@/app/components/WeeklyHighlight';
 import Modal from '@/app/components/Modal';
@@ -10,6 +12,7 @@ import FormField from '@/app/components/FormField';
 import Button from '@/app/components/Button';
 
 export default function Home() {
+  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLogged, setIsLogged] = useState(false);
 
@@ -18,6 +21,12 @@ export default function Home() {
   const handleLogToday = () => {
     setIsLogged(true);
     setIsModalOpen(false);
+  };
+
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push('/login');
   };
 
   const CalendarIcon = () => (
@@ -36,13 +45,30 @@ export default function Home() {
     </svg>
   );
 
+  const CheckIcon = () => (
+    <svg viewBox="0 0 20 20" fill="currentColor">
+      <path
+        fillRule="evenodd"
+        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+        clipRule="evenodd"
+      />
+    </svg>
+  );
+
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 p-8 font-sans">
       <div className="mx-auto w-full max-w-4xl">
-        <Header
-          isLogged={isLogged}
-          onButtonClick={() => setIsModalOpen(true)}
-        />
+        <Header onLogout={handleLogout} />
+      </div>
+      <div className="mx-auto mt-8 w-full max-w-4xl">
+        <Button
+          state={isLogged ? 'logged' : 'default'}
+          variant="filled"
+          icon={isLogged ? <CheckIcon /> : <PlusIcon />}
+          onClick={() => setIsModalOpen(true)}
+        >
+          {isLogged ? 'Logged Today' : 'Log Today'}
+        </Button>
       </div>
       <main className="flex flex-1 items-center justify-center">
         <WeeklyHighlight />
