@@ -68,7 +68,7 @@ export default function LoggedDayTable({
   return (
     <div className="w-full overflow-hidden rounded-[14px] bg-white shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1),0px_4px_6px_-4px_rgba(0,0,0,0.1)]">
       {/* Header */}
-      <div className="flex h-[57px] items-center gap-2 border-b border-slate-200 bg-gradient-to-r from-[#f8fafc] to-[#f1f5f9] px-6">
+      <div className="flex h-[57px] items-center gap-2 border-b border-slate-200 bg-linear-to-r from-[#f8fafc] to-[#f1f5f9] px-6">
         <CalendarIcon />
         <span className="text-base font-normal tracking-tight text-[#0f172b]">
           Logged Days

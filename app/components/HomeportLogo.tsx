@@ -2,7 +2,7 @@ export default function HomeportLogo() {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-3">
-        <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600">
+        <div className="flex size-10 items-center justify-center rounded-xl bg-linear-to-br from-indigo-500 to-purple-600">
           <svg
             className="size-6 text-white"
             viewBox="0 0 24 24"
