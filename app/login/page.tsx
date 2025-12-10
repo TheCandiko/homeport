@@ -7,6 +7,7 @@ import Form from '@/app/components/Form';
 import FormTitle from '@/app/components/FormTitle';
 import FormField from '@/app/components/FormField';
 import Button from '@/app/components/Button';
+import HomeportLogo from '../components/HomeportLogo';
 
 export default function Login() {
   const router = useRouter();
@@ -35,7 +36,8 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 p-8 font-sans">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 p-8 font-sans">
+      <HomeportLogo />
       <Form>
         <FormTitle title="Login" />
         <div className="flex flex-col gap-4 p-6">
