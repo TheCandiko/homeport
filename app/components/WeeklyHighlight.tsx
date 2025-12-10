@@ -3,10 +3,10 @@
 import { useState } from 'react';
 
 export default function WeeklyHighlight() {
-  const [leetcodeProblems, setLeetcodeProblems] = useState(0);
-  const [dsaHours, setDsaHours] = useState(0);
-  const [workoutDays, setWorkoutDays] = useState(0);
-  const [projectHours, setProjectHours] = useState(0);
+  const [leetcodeProblems] = useState(0);
+  const [dsaHours] = useState(0);
+  const [workoutDays] = useState(0);
+  const [projectHours] = useState(0);
 
   const metrics = [
     {
