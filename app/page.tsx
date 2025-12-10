@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { getLoggedDays } from '@/lib/supabase/logged-days';
 import Header from '@/app/components/Header';
 import WeeklyHighlight from '@/app/components/WeeklyHighlight';
 import LoggedDayTable, { LogEntry } from '@/app/components/LoggedDayTable';
@@ -12,28 +13,29 @@ import DailyLogForm, {
   defaultFormData,
 } from '@/app/components/DailyLogForm';
 
-const initialEntries: LogEntry[] = [
-  {
-    id: '1',
-    date: '2025-12-07',
-    leetcodeProblems: 1,
-    dsaHours: 1,
-    workout: false,
-    projectHours: 2,
-  },
-];
-
 export default function Home() {
   const router = useRouter();
 
   // Modal visibility
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Temporary data storage
-  const [logEntries, setLogEntries] = useState<LogEntry[]>(initialEntries);
+  // Data storage
+  const [logEntries, setLogEntries] = useState<LogEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [editingEntry, setEditingEntry] = useState<LogEntry | null>(null);
   const [formData, setFormData] = useState<FormData>(defaultFormData);
   const [isLogged, setIsLogged] = useState(false);
+
+  // Fetch logged days on mount
+  useEffect(() => {
+    async function fetchLoggedDays() {
+      setIsLoading(true);
+      const entries = await getLoggedDays();
+      setLogEntries(entries);
+      setIsLoading(false);
+    }
+    fetchLoggedDays();
+  }, []);
 
   // Logout logic
   const handleLogout = async () => {
@@ -107,11 +109,17 @@ export default function Home() {
       </div>
       <main className="mx-auto mt-8 flex w-full max-w-4xl flex-1 flex-col gap-8">
         <WeeklyHighlight />
-        <LoggedDayTable
-          entries={logEntries}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
+        {isLoading ? (
+          <div className="flex h-32 items-center justify-center rounded-[14px] bg-white shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1),0px_4px_6px_-4px_rgba(0,0,0,0.1)]">
+            <span className="text-base text-[#62748e]">Loading...</span>
+          </div>
+        ) : (
+          <LoggedDayTable
+            entries={logEntries}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        )}
       </main>
 
       <DailyLogForm
