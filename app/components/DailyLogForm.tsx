@@ -20,6 +20,8 @@ export const defaultFormData: FormData = {
   projectHours: '0',
 };
 
+export type FormErrors = Partial<Record<keyof FormData, string>>;
+
 interface DailyLogFormProps {
   isOpen: boolean;
   onClose: () => void;
@@ -27,6 +29,8 @@ interface DailyLogFormProps {
   isEditing: boolean;
   formData: FormData;
   onFormChange: (data: FormData) => void;
+  errors?: FormErrors;
+  isSubmitting?: boolean;
 }
 
 const CalendarIcon = () => (
@@ -62,6 +66,8 @@ export default function DailyLogForm({
   isEditing,
   formData,
   onFormChange,
+  errors = {},
+  isSubmitting = false,
 }: DailyLogFormProps) {
   const updateField = <K extends keyof FormData>(
     field: K,
@@ -84,6 +90,7 @@ export default function DailyLogForm({
             type="date"
             value={formData.date}
             onChange={(e) => updateField('date', e.target.value)}
+            error={errors.date}
           />
           <FormField
             label="LeetCode Problems"
@@ -91,6 +98,7 @@ export default function DailyLogForm({
             placeholder="0"
             value={formData.leetcode}
             onChange={(e) => updateField('leetcode', e.target.value)}
+            error={errors.leetcode}
           />
           <FormField
             label="DSA Study Hours"
@@ -98,12 +106,14 @@ export default function DailyLogForm({
             placeholder="0"
             value={formData.dsaHours}
             onChange={(e) => updateField('dsaHours', e.target.value)}
+            error={errors.dsaHours}
           />
           <FormField
             label="Workout completed"
             type="checkbox"
             checked={formData.workout}
             onChange={(e) => updateField('workout', e.target.checked)}
+            error={errors.workout}
           />
           <FormField
             label="Project Hours"
@@ -111,6 +121,7 @@ export default function DailyLogForm({
             placeholder="0"
             value={formData.projectHours}
             onChange={(e) => updateField('projectHours', e.target.value)}
+            error={errors.projectHours}
           />
           <div className="flex gap-3 pt-4">
             <Button variant="outlined" onClick={onClose} className="flex-1">
@@ -120,8 +131,13 @@ export default function DailyLogForm({
               variant="filled"
               icon={isEditing ? <CheckIcon /> : <PlusIcon />}
               onClick={onSubmit}
+              disabled={isSubmitting}
             >
-              {isEditing ? 'Save Changes' : 'Log Today'}
+              {isSubmitting
+                ? 'Saving...'
+                : isEditing
+                  ? 'Save Changes'
+                  : 'Log Today'}
             </Button>
           </div>
         </div>

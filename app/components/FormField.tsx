@@ -2,6 +2,7 @@ import { InputHTMLAttributes } from 'react';
 
 interface FormFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
+  error?: string;
 }
 
 export default function FormField({
@@ -9,6 +10,7 @@ export default function FormField({
   type = 'text',
   className = '',
   id,
+  error,
   ...props
 }: FormFieldProps) {
   const inputId = id || label.toLowerCase().replace(/\s+/g, '-');
@@ -18,19 +20,22 @@ export default function FormField({
 
   if (type === 'checkbox') {
     return (
-      <div className={`flex items-center gap-2 ${className}`}>
-        <input
-          type="checkbox"
-          id={inputId}
-          className="size-4 rounded border-[#cad5e2] accent-[#2b7fff]"
-          {...props}
-        />
-        <label
-          htmlFor={inputId}
-          className="text-base font-normal tracking-tight text-[#314158]"
-        >
-          {label}
-        </label>
+      <div className={`flex flex-col gap-1 ${className}`}>
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id={inputId}
+            className="size-4 rounded border-[#cad5e2] accent-[#2b7fff]"
+            {...props}
+          />
+          <label
+            htmlFor={inputId}
+            className="text-base font-normal tracking-tight text-[#314158]"
+          >
+            {label}
+          </label>
+        </div>
+        {error && <span className="text-sm text-red-500">{error}</span>}
       </div>
     );
   }
@@ -43,7 +48,13 @@ export default function FormField({
       >
         {label}
       </label>
-      <input type={type} id={inputId} className={inputClasses} {...props} />
+      <input
+        type={type}
+        id={inputId}
+        className={`${inputClasses}${error ? 'border-red-500' : ''}`}
+        {...props}
+      />
+      {error && <span className="-mt-1 text-sm text-red-500">{error}</span>}
     </div>
   );
 }

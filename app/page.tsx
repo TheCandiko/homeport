@@ -3,13 +3,15 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { getLoggedDays } from '@/lib/supabase/logged-days';
+import { getLoggedDays, createLoggedDay } from '@/lib/supabase/logged-days';
+import { loggedDaySchema } from '@/lib/validations/logged-day';
 import Header from '@/app/components/Header';
 import WeeklyHighlight from '@/app/components/WeeklyHighlight';
 import LoggedDayTable, { LogEntry } from '@/app/components/LoggedDayTable';
 import LogTodayButton from '@/app/components/LogTodayButton';
 import DailyLogForm, {
   FormData,
+  FormErrors,
   defaultFormData,
 } from '@/app/components/DailyLogForm';
 
@@ -24,7 +26,9 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [editingEntry, setEditingEntry] = useState<LogEntry | null>(null);
   const [formData, setFormData] = useState<FormData>(defaultFormData);
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [isLogged, setIsLogged] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch logged days on mount
   useEffect(() => {
@@ -46,6 +50,7 @@ export default function Home() {
 
   const resetForm = () => {
     setFormData(defaultFormData);
+    setFormErrors({});
     setEditingEntry(null);
   };
 
@@ -54,27 +59,57 @@ export default function Home() {
     resetForm();
   };
 
-  const handleSubmit = () => {
-    const newEntry: LogEntry = {
-      id: editingEntry?.id || Date.now().toString(),
-      date: formData.date || new Date().toISOString().split('T')[0],
-      leetcodeProblems: parseInt(formData.leetcode) || 0,
-      dsaHours: parseInt(formData.dsaHours) || 0,
-      workout: formData.workout,
-      projectHours: parseInt(formData.projectHours) || 0,
-    };
+  const handleSubmit = async () => {
+    setFormErrors({});
+
+    const result = loggedDaySchema.safeParse(formData);
+
+    if (!result.success) {
+      const errors: FormErrors = {};
+      for (const issue of result.error.issues) {
+        const field = issue.path[0] as keyof FormData;
+        errors[field] = issue.message;
+      }
+      setFormErrors(errors);
+      return;
+    }
+
+    setIsSubmitting(true);
 
     if (editingEntry) {
+      // TODO: implement update functionality
+      const newEntry: LogEntry = {
+        id: editingEntry.id,
+        date: result.data.date,
+        leetcodeProblems: result.data.leetcode,
+        dsaHours: result.data.dsaHours,
+        workout: result.data.workout,
+        projectHours: result.data.projectHours,
+      };
       setLogEntries((prev) =>
         prev.map((entry) => (entry.id === editingEntry.id ? newEntry : entry))
       );
+      setIsLogged(true);
+      setIsModalOpen(false);
+      resetForm();
     } else {
-      setLogEntries((prev) => [newEntry, ...prev]);
+      const { data, error } = await createLoggedDay(result.data);
+
+      if (error) {
+        setFormErrors({ date: error });
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (data) {
+        setLogEntries((prev) => [data, ...prev]);
+        setIsLogged(true);
+        setIsModalOpen(false);
+        resetForm();
+      }
     }
 
-    setIsLogged(true);
-    setIsModalOpen(false);
-    resetForm();
+    setIsSubmitting(false);
   };
 
   const handleEdit = (id: string) => {
@@ -129,6 +164,8 @@ export default function Home() {
         isEditing={!!editingEntry}
         formData={formData}
         onFormChange={setFormData}
+        errors={formErrors}
+        isSubmitting={isSubmitting}
       />
     </div>
   );
