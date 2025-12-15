@@ -3,7 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { getLoggedDays, createLoggedDay } from '@/lib/supabase/logged-days';
+import {
+  getLoggedDays,
+  createLoggedDay,
+  updateLoggedDay,
+} from '@/lib/supabase/logged-days';
 import { loggedDaySchema } from '@/lib/validations/logged-day';
 import Header from '@/app/components/Header';
 import WeeklyHighlight from '@/app/components/WeeklyHighlight';
@@ -77,21 +81,24 @@ export default function Home() {
     setIsSubmitting(true);
 
     if (editingEntry) {
-      // TODO: implement update functionality
-      const newEntry: LogEntry = {
-        id: editingEntry.id,
-        date: result.data.date,
-        leetcodeProblems: result.data.leetcode,
-        dsaHours: result.data.dsaHours,
-        workout: result.data.workout,
-        projectHours: result.data.projectHours,
-      };
-      setLogEntries((prev) =>
-        prev.map((entry) => (entry.id === editingEntry.id ? newEntry : entry))
+      const { data, error } = await updateLoggedDay(
+        editingEntry.id,
+        result.data
       );
-      setIsLogged(true);
-      setIsModalOpen(false);
-      resetForm();
+
+      if (error) {
+        setFormErrors({ date: error });
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (data) {
+        setLogEntries((prev) =>
+          prev.map((entry) => (entry.id === editingEntry.id ? data : entry))
+        );
+        setIsModalOpen(false);
+        resetForm();
+      }
     } else {
       const { data, error } = await createLoggedDay(result.data);
 

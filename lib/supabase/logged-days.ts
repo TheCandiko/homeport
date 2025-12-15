@@ -70,3 +70,54 @@ export async function createLoggedDay(
     error: null,
   };
 }
+
+export async function updateLoggedDay(
+  id: string,
+  input: LoggedDayInput
+): Promise<{ data: LogEntry | null; error: string | null }> {
+  const supabase = createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { data: null, error: 'User not authenticated' };
+  }
+
+  const { data, error } = await supabase
+    .from('logged_days')
+    .update({
+      date: input.date,
+      leetcode_problems: input.leetcode,
+      dsa_hours: input.dsaHours,
+      workout: input.workout,
+      project_hours: input.projectHours,
+    })
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating logged day:', error);
+    return { data: null, error: error.message };
+  }
+
+  if (!data) {
+    return { data: null, error: 'Entry not found or access denied' };
+  }
+
+  const row = data as LoggedDay;
+  return {
+    data: {
+      id: row.id,
+      date: row.date,
+      leetcodeProblems: row.leetcode_problems,
+      dsaHours: row.dsa_hours,
+      workout: row.workout,
+      projectHours: row.project_hours,
+    },
+    error: null,
+  };
+}
